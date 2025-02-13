@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>星空随机点名器</title>
+    <style>
+        body {
+            background: #E0F0E5;
+            margin: 0;
+            height: 100vh;
+            overflow: hidden;
+            font-family: 'Microsoft Yahei', sans-serif;
+        }
+
+        #container {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+        }
+
+        .name {
+            position: absolute;
+            color: #FFFFFF;
+            font-size: 24px;
+            opacity: 0.8;
+            transition: all 0.3s;
+            cursor: pointer;
+            text-shadow: 0 0 10px rgba(173, 216, 230, 0.8);
+        }
+
+        #btn {
+            position: fixed;
+            bottom: 50px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 15px 40px;
+            font-size: 20px;
+            background: #AFDDB3;
+            border: none;
+            border-radius: 30px;
+            color: white;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(175, 221, 179, 0.6);
+            transition: all 0.3s;
+        }
+
+        #btn:hover {
+            transform: translateX(-50%) scale(1.1);
+            box-shadow: 0 6px 20px rgba(175, 221, 179, 0.8);
+        }
+
+        #result {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 60px;
+            color: #FFFAF0;
+            text-shadow: 0 0 20px #AFDDB3;
+            opacity: 0;
+            transition: all 0.5s;
+        }
+
+        @keyframes orbit {
+            0% { transform: rotate(0deg) translateX(300px) rotate(0deg); }
+            100% { transform: rotate(360deg) translateX(300px) rotate(-360deg); }
+        }
+
+        .star-animation {
+            animation: orbit 20s linear infinite;
+        }
+    </style>
+</head>
+<body>
+    <div id="container"></div>
+    <button id="btn">开始点名</button>
+    <div id="result"></div>
+
+    <script>
+        const names = ["曾洪瑜","畅昭涵","陈昊霆","陈敏珊","陈思予","陈文乐","莫尹彤","陈子瑞",
+        "邓嘉平","樊芷淇","范岚雯","黄佳好","简文培","简文轩","简栩莹","江怡静","黎子晴","黎子瑜",
+        "李昊阳","李云曦","梁珈杰","梁轩","梁粤鸿","毛翌山","刘兆宇","罗炳钰","罗云浩","苏梓烽",
+        "王海荞","王湛漾","吴幽","吴志颖","谢明峰","谢子峰","谢子轩","叶婧婷","余倩怡","张少萍",
+        "张幸怡","郑培堃","朱治承","庄程栋","邹恺岚","邹培文","郭焕然","王华滢","陈力","李东"];
+
+        const container = document.getElementById('container');
+        const btn = document.getElementById('btn');
+        const result = document.getElementById('result');
+        let isRunning = false;
+        let animationId;
+
+        // 初始化名字布局
+        function initNames() {
+            const centerX = window.innerWidth / 2;
+            const centerY = window.innerHeight / 2;
+            const radius = Math.min(window.innerWidth, window.innerHeight) * 0.4;
+
+            names.forEach((name, index) => {
+                const angle = (index * (360 / names.length)) * Math.PI / 180;
+                const x = centerX + Math.cos(angle) * radius;
+                const y = centerY + Math.sin(angle) * radius;
+                
+                const elem = document.createElement('div');
+                elem.className = 'name';
+                elem.textContent = name;
+                elem.style.left = x + 'px';
+                elem.style.top = y + 'px';
+                container.appendChild(elem);
+            });
+        }
+
+        // 随机动画
+        function animateNames() {
+            const names = document.querySelectorAll('.name');
+            names.forEach(name => {
+                name.style.transform = `
+                    rotate(${Math.random() * 360}deg)
+                    scale(${0.5 + Math.random() * 1.5})
+                `;
+            });
+            animationId = requestAnimationFrame(animateNames);
+        }
+
+        // 开始点名
+        function startRoll() {
+            isRunning = true;
+            btn.textContent = '停止点名';
+            result.style.opacity = 0;
+            animateNames();
+        }
+
+        // 停止点名
+        function stopRoll() {
+            isRunning = false;
+            cancelAnimationFrame(animationId);
+            btn.textContent = '开始点名';
+            
+            const selected = names[Math.floor(Math.random() * names.length)];
+            result.textContent = selected;
+            result.style.opacity = 1;
+            result.style.transform = `translate(-50%, -50%) scale(1.2)`;
+            setTimeout(() => {
+                result.style.transform = `translate(-50%, -50%) scale(1)`;
+            }, 500);
+        }
+
+        btn.addEventListener('click', () => {
+            isRunning ? stopRoll() : startRoll();
+        });
+
+        // 初始化
+        initNames();
+        // 窗口大小变化时重新布局
+        window.addEventListener('resize', () => {
+            container.innerHTML = '';
+            initNames();
+        });
+    </script>
+</body>
+</html>
